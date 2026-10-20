@@ -9,6 +9,7 @@ Celery Beat with Redis and django-celery-beat.
 pip install -r requirements.txt
 python manage.py migrate
 python manage.py setup_periodic_tasks
+python manage.py populate_users
 ```
 
 Copy `.env.example` to `.env` and add your Gmail address and app password.
@@ -65,7 +66,8 @@ curl -X POST localhost:8003/api/schedule-email/ -H "Content-Type: application/js
 
 ## Timezones
 
-Each user has an `EmailPreference` row holding their timezone, birthday and whether
+`populate_users` creates three users in Asia/Kolkata, America/New_York and Asia/Tokyo.
+Each has an `EmailPreference` row holding their timezone, birthday and whether
 they want campaigns. `send_occasion_emails` matches on today's month and day, then
 renders the time in that person's own timezone before queueing the mail. Naive
 datetimes coming in through the API are made aware with the project timezone.

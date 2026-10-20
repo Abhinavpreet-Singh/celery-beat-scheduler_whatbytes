@@ -99,27 +99,38 @@ comes back as +05:30.
 
 ## Birthday emails and timezones
 
-Three users with different timezones, two with today's date as their birthday:
+```bash
+python manage.py populate_users
+```
 
 ```
-riya | Asia/Kolkata    | birthday today
-john | America/New_York| birthday 1995-03-14
-mei  | Asia/Tokyo      | birthday today
+riya   Asia/Kolkata       birthday 2026-10-20
+john   America/New_York   birthday 2026-10-20
+mei    Asia/Tokyo         birthday 2026-10-20
+3 preferences, all mailing abhinavpreet@whatbytes.com
 ```
+
+Three users in three timezones, all mailing one real inbox so delivery can be checked.
 
 ```python
 send_occasion_emails.delay('birthday')
-# {'occasion': 'birthday', 'queued': 2}
+# {'occasion': 'birthday', 'queued': 3}
 ```
 
-Only the two matching today were queued, and each message carries the time rendered
-in that person's own timezone.
+Each message carries the send time rendered in that person's own timezone, so the
+three mails differ even though they were queued together. All three arrived:
+
+```
+[17:11:53] Email sent to abhinavpreet@whatbytes.com
+[17:11:56] Email sent to abhinavpreet@whatbytes.com
+[17:12:00] Email sent to abhinavpreet@whatbytes.com
+```
 
 ## Campaigns
 
 ```python
-campaign_task.delay({'subject': 'October campaign', 'message': 'Campaign body text.'})
-# {'campaign': 'October campaign', 'queued': 3}
+campaign_task.delay({'subject': 'Celery Beat campaign', 'message': 'Campaign email sent through the scheduler.'})
+# {'campaign': 'Celery Beat campaign', 'queued': 3}
 ```
 
 Goes to everyone with `wants_campaigns` set.
@@ -155,10 +166,10 @@ curl localhost:8003/api/task-history/
 ```
 
 ```
-email_scheduler_task   SUCCESS  {"sent_to": "aroraabhinavpreetsingh@gmail.com"...
-email_scheduler_task   SUCCESS  {"sent_to": "mei@example.com", "subject": "Oct...
-campaign_task          SUCCESS  {"campaign": "October campaign", "queued": 3}
-send_occasion_emails   SUCCESS  {"occasion": "birthday", "queued": 2}
+email_scheduler_task   SUCCESS  {"sent_to": "abhinavpreet@whatbytes.com", ...
+email_scheduler_task   SUCCESS  {"sent_to": "abhinavpreet@whatbytes.com", ...
+campaign_task          SUCCESS  {"campaign": "Celery Beat campaign", "queued": 3}
+send_occasion_emails   SUCCESS  {"occasion": "birthday", "queued": 3}
 ```
 
 Read from the django-celery-results table, so the same rows show in the admin under
